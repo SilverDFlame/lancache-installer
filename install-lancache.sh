@@ -9,9 +9,9 @@ fi
 # File path for lancache
 lc_srv_loc="/srv/lancache"
 # Primary DNS Server
-lc_dns1="192.168.1.3"
+lc_dns1="127.0.0.1#5353"
 # Secondary DNS Server
-lc_dns2="1.0.0.1"
+lc_dns2="127.0.0.1#5353"
 # Proxy cache size, measued in Megabytes (MB). Default is 500GB
 lc_max_size="500000m"
 
@@ -25,6 +25,8 @@ lc_tmp_hosts="$lc_base_folder/etc/hosts"
 lc_tmp_yaml="$lc_base_folder/etc/netplan/01-netcfg.yaml"
 lc_nginx_loc="/etc/nginx"
 lc_unbound_loc="/etc/unbound"
+lc_unbound_root_loc="/var/lib/unbound/"
+lc_unbound_root_hints="/var/lib/unbound/root.hints"
 lc_netdata="/etc/netdata/netdata.conf"
 lc_nginx_systemd="/etc/systemd/system/nginx.service"
 lc_network=$(hostname -I | awk '{ print $1 }')
@@ -60,6 +62,11 @@ apt -y upgrade
 # Install required packages
 echo "Installing required updates..."
 apt -y install nginx sniproxy unbound nmon httpry netdata
+
+# Setup Unbound's Root Hints
+echo "Setting up Unbound's root.hints file..."
+wget -O root.hints https://www.internic.net/domain/named.root
+mv root.hints $lc_unbound_root_loc
 
 # Arrays used
 # Services used and set ip for and created the lancache folders for
@@ -226,8 +233,6 @@ sed -i "s|lc-dns1|$lc_dns1|g" $lc_base_folder/etc/nginx/lancache/resolver
 sed -i "s|lc-dns2|$lc_dns2|g" $lc_base_folder/etc/nginx/lancache/resolver
 sed -i "s|lc-dns1|$lc_dns1|g" $lc_tmp_yaml
 sed -i "s|lc-dns2|$lc_dns2|g" $lc_tmp_yaml
-sed -i "s|lc-dns1|$lc_dns1|g" $lc_tmp_unbound
-sed -i "s|lc-dns2|$lc_dns2|g" $lc_tmp_unbound
 sed -i "s|lc-dns1|$lc_dns1|g" $lc_base_folder/etc/sniproxy.conf
 
 # Change the Proxy Bind in Lancache Configs
@@ -252,6 +257,7 @@ cp $lc_base_folder/etc/sniproxy.conf /etc/sniproxy.conf
 
 # Moving unbound configs
 echo "Configuring unbound..."
+sed -i "s|lc-unbound-root-hints|'$lc_unbound_root_hints'|g" $lc_tmp_unbound
 mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.$TIMESTAMP.bak
 cp $lc_base_folder/etc/unbound/unbound.conf /etc/unbound/unbound.conf
 #Disable Systemd.resolve so unbound can start 
