@@ -68,6 +68,11 @@ echo "Setting up Unbound's root.hints file..."
 wget -O root.hints https://www.internic.net/domain/named.root
 mv root.hints $lc_unbound_root_loc
 
+# Setup Pi-Hole for network wide ad-blocking
+echo "Installing Pi-Hole......"
+wget -O basic-install.sh https://install.pi-hole.net
+bash basic-install.sh
+
 # Arrays used
 # Services used and set ip for and created the lancache folders for
 declare -a lc_services=(arena apple blizzard hirez gog glyph microsoft origin riot steam sony enmasse wargaming uplay zenimax digitalextremes pearlabyss epicgames)
