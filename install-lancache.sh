@@ -14,6 +14,8 @@ lc_dns1="127.0.0.1#5353"
 lc_dns2="127.0.0.1#5353"
 # Proxy cache size, measued in Megabytes (MB). Default is 500GB
 lc_max_size="500000m"
+# Name of interface to use for lancache
+lc_interface_used="ens18"
 
 # Variables you should most likely not touch
 # Unless you know what you are doing
@@ -31,7 +33,8 @@ lc_netdata="/etc/netdata/netdata.conf"
 lc_nginx_systemd="/etc/systemd/system/nginx.service"
 lc_network=$(hostname -I | awk '{ print $1 }')
 lc_gateway=$(route -n | grep 'UG[ \t]' | awk '{print $2}')
-if_name=$(ifconfig | grep flags | awk -F: '{print $1;}' | grep -Fvx -e lo)
+if_name=$(ip addr show $lc_interface_used | grep 'inet ' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | head -n 1)
+echo $if_name
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
@@ -41,7 +44,7 @@ if [[ -d /etc/apt/sources.list.d/nginx.list ]]; then
 	
 else
  	echo "Adding NGINX repository to Ubuntu repository"
- 	curl -s https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+ 	curl -s https://nginx.org/keys/nginx_signing.key |g apt-key add -
  	echo "deb [arch=amd64] https://nginx.org/packages/mainline/ubuntu/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
  	echo "deb-src https://nginx.org/packages/mainline/ubuntu/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
 
