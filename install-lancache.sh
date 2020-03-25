@@ -38,6 +38,7 @@ if_name=$(printf ${lc_route#*src })
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
+echo "Host IP is: ${if_name} and Host Gateway is: ${lc_gateway}"
 # Chcecking to see if NGINX repository already in system.
 if [[ -d /etc/apt/sources.list.d/nginx.list ]]; then
 	echo "Nginx Repository Already Added to System..."
