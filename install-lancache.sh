@@ -46,8 +46,8 @@ if [[ -d /etc/apt/sources.list.d/nginx.list ]]; then
 else
  	echo "Adding NGINX repository to Ubuntu repository"
  	curl -s https://nginx.org/keys/nginx_signing.key | apt-key add -
- 	echo "deb [arch=amd64] https://nginx.org/packages/mainline/ubuntu/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
- 	echo "deb-src https://nginx.org/packages/mainline/ubuntu/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
+ 	echo "deb [arch=amd64] https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
+ 	echo "deb-src https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
 
 fi
 
