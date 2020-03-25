@@ -32,9 +32,9 @@ lc_unbound_root_hints="/var/lib/unbound/root.hints"
 lc_netdata="/etc/netdata/netdata.conf"
 lc_nginx_systemd="/etc/systemd/system/nginx.service"
 lc_network=$(hostname -I | awk '{ print $1 }')
-lc_gateway=$(route -n | grep 'UG[ \t]' | awk '{print $2}')
-if_name=$(ip addr show $lc_interface_used | grep 'inet ' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | head -n 1)
-echo $if_name
+lc_route=$(ip route get 1.1.1.1)
+lc_gateway=$(printf ${lc_route#*via })
+if_name=$(printf ${lc_route#*src })
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
