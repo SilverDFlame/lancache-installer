@@ -34,7 +34,7 @@ lc_nginx_systemd="/etc/systemd/system/nginx.service"
 lc_network=$(hostname -I | awk '{ print $1 }')
 lc_route=$(ip route get 1.1.1.1)
 lc_gateway=$(printf ${lc_route#*via })
-if_name=$(printf ${lc_route#*src })
+if_name=$(printf ${lc_route#*dev })
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
