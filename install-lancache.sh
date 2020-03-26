@@ -9,9 +9,9 @@ fi
 # File path for lancache
 lc_srv_loc="/srv/lancache"
 # Primary DNS Server
-lc_dns1="127.0.0.1#5353"
+lc_dns1="192.168.1.10"
 # Secondary DNS Server
-lc_dns2="127.0.0.1#5353"
+lc_dns2="192.168.1.10"
 # Proxy cache size, measued in Megabytes (MB). Default is 500GB
 lc_max_size="500000m"
 # Name of interface to use for lancache
@@ -66,7 +66,7 @@ apt -y upgrade
 
 # Install required packages
 echo "Installing required updates..."
-apt -y install nginx sniproxy unbound nmon httpry netdata
+apt -y install nginx sniproxy unbound nmon httpry netdata netplan
 
 # Setup Unbound's Root Hints
 echo "Setting up Unbound's root.hints file..."
