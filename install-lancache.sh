@@ -59,21 +59,21 @@ echo "Installing package updates..."
 #	echo "Adding universe repository..."
 #	apt-add-repository universe
 #else
-apt -y update
+apt-get -y update
 #fi
-apt -y upgrade
+apt-get -y upgrade
 #apt -y dist-upgrade
 
 # Install required packages
 echo "Installing required updates..."
-apt -y install nginx sniproxy unbound nmon httpry netdata netplan
+apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan
+
+sleep 60
 
 # Setup Unbound's Root Hints
 echo "Setting up Unbound's root.hints file..."
 wget -O root.hints https://www.internic.net/domain/named.root
 mv root.hints $lc_unbound_root_loc
-ls -aux $lc_unbound_root_loc
-sleep 5
 
 # Setup Pi-Hole for network wide ad-blocking
 echo "Installing Pi-Hole......"
