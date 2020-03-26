@@ -39,7 +39,7 @@ lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
 echo "Host IP is: ${if_name} and Host Gateway is: ${lc_gateway}"
-# Chcecking to see if NGINX repository already in system.
+# Checking to see if NGINX repository is already in system.
 if [[ -d /etc/apt/sources.list.d/nginx.list ]]; then
 	echo "Nginx Repository Already Added to System..."
 	
@@ -53,13 +53,14 @@ fi
 
 # Update packages
 echo "Installing package updates..."
-universeCheck=$(apt-cache policy |grep universe)
-if [[ -z $universeCheck ]]; then
-	echo "Adding universe repository..."
-	apt-add-repository universe
-else
-	apt -y update
-fi
+# Commenting out Universe repo as we're running this on Debian.
+#universeCheck=$(apt-cache policy |grep universe)
+#if [[ -z $universeCheck ]]; then
+#	echo "Adding universe repository..."
+#	apt-add-repository universe
+#else
+apt -y update
+#fi
 apt -y upgrade
 #apt -y dist-upgrade
 
@@ -71,6 +72,8 @@ apt -y install nginx sniproxy unbound nmon httpry netdata
 echo "Setting up Unbound's root.hints file..."
 wget -O root.hints https://www.internic.net/domain/named.root
 mv root.hints $lc_unbound_root_loc
+ls -aux $lc_unbound_root_loc
+sleep 5
 
 # Setup Pi-Hole for network wide ad-blocking
 echo "Installing Pi-Hole......"
