@@ -66,7 +66,7 @@ apt-get -y upgrade
 
 # Install required packages
 echo "Installing required updates..."
-apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan
+apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
 
 sleep 60
 
