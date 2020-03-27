@@ -51,3 +51,4 @@ network:
      gateway4: lc-host-gateway
      nameservers:
        addresses: [lc-dns1,lc-dns2]
+     mtu: 9000
