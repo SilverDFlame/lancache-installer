@@ -3,6 +3,7 @@ network:
  renderer: networkd
  ethernets:
    lc-host-vint:
+     match: 1e:a1:85:72:a9:e4
      dhcp4: no
      dhcp6: no
      addresses: [lc-host-network]
