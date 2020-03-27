@@ -68,8 +68,6 @@ apt-get -y upgrade
 echo "Installing required updates..."
 apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
 
-sleep 60
-
 # Setup Unbound's Root Hints
 if [[ -d ${lc_unbound_root_hints} ]]; then
   echo "Already downloaded root.hints file"
