@@ -71,14 +71,21 @@ apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
 sleep 60
 
 # Setup Unbound's Root Hints
-echo "Setting up Unbound's root.hints file..."
-wget -O root.hints https://www.internic.net/domain/named.root
-mv root.hints $lc_unbound_root_loc
-
+if [[ -d ${lc_unbound_root_hints} ]]; then
+  echo "Already downloaded root.hints file"
+else
+  echo "Setting up Unbound's root.hints file..."
+  wget -O root.hints https://www.internic.net/domain/named.root
+  mv root.hints $lc_unbound_root_loc
+fi
 # Setup Pi-Hole for network wide ad-blocking
-echo "Installing Pi-Hole......"
-wget -O basic-install.sh https://install.pi-hole.net
-bash basic-install.sh
+if [[ -d basic-install.sh ]]; then
+  echo "Pi-Hole already installed!"
+else
+  echo "Installing Pi-Hole......"
+  wget -O basic-install.sh https://install.pi-hole.net
+  bash basic-install.sh
+fi
 
 # Arrays used
 # Services used and set ip for and created the lancache folders for
