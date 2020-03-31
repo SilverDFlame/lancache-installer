@@ -103,6 +103,7 @@ for int in ${ip_eth[@]}; do
 done
 
 lc_ip=$(/bin/ip -4 addr show $lc_ip_eth | grep -oP "(?<=inet ).*(?=br)")
+echo ${lc_ip}
 # 1st octet
 lc_ip_p1=$(echo ${lc_ip} | tr "." " " | awk '{ print $1 }')
 # 2nd octet
@@ -140,7 +141,7 @@ for service in ${lc_services[@]}; do
 	do
 		# Increases the IP with Every Run
 		lc_ip_p4=$(expr $lc_ip_p4 + 1)
-
+    echo $lc_ip_p1.$lc_ip_p2.$lc_ip_p3.$lc_ip_p4
 		#new stuff TTE - CARl LOOP
 		sed  -i '0,/lc-host-'$service'/s//'$lc_ip_p1.$lc_ip_p2.$lc_ip_p3.$lc_ip_p4'/' "$lc_tmp_hosts"
 	done	
