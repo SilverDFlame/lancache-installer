@@ -131,6 +131,7 @@ cd $lc_dl_dir
 git clone -b master https://github.com/SilverDFlame/lancache-installer.git
 echo "Configuring IP Addressing..."
 for service in ${lc_services[@]}; do
+  echo "Configuring $service's IP as:"
 	# Check if the folder exists if not creates it
 	if [[ ! -d "/tmp/data/$service" ]]; then
 		mkdir -p /tmp/data/$service
