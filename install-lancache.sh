@@ -40,7 +40,7 @@ TIMESTAMP=$(date +%s)
 
 echo "Host IP is: ${if_name} and Host Gateway is: ${lc_gateway}"
 # Checking to see if NGINX repository is already in system.
-if [[ -d /etc/apt/sources.list.d/nginx.list ]]; then
+if [[ --f /etc/apt/sources.list.d/nginx.list ]]; then
 	echo "Nginx Repository Already Added to System..."
 	
 else
@@ -69,7 +69,7 @@ echo "Installing required updates..."
 apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
 
 # Setup Unbound's Root Hints
-if [[ -d ${lc_unbound_root_hints} ]]; then
+if [[ --f ${lc_unbound_root_hints} ]]; then
   echo "Already downloaded root.hints file"
 else
   echo "Setting up Unbound's root.hints file..."
@@ -77,7 +77,7 @@ else
   mv root.hints $lc_unbound_root_loc
 fi
 # Setup Pi-Hole for network wide ad-blocking
-if [[ -d basic-install.sh ]]; then
+if [[ --f basic-install.sh ]]; then
   echo "Pi-Hole already installed!"
 else
   echo "Installing Pi-Hole......"
