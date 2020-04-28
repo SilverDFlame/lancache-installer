@@ -38,6 +38,7 @@ lc_unbound_root_hints="/var/lib/unbound/root.hints"
 lc_netdata="/etc/netdata/netdata.conf"
 lc_nginx_systemd="/etc/systemd/system/nginx.service"
 lc_network=$(hostname -I | awk '{ print $1 }')
+lc_network_mac_address=$(ip a | grep ether | awk '{print $2}')
 lc_route=$(ip route get 1.1.1.1)
 lc_gateway=$(printf ${lc_route#*via })
 if_name=$(printf ${lc_route#*dev })
@@ -192,6 +193,9 @@ sed -i 's|lc-host-network|'$lc_network'/'$lc_ip_sn'|g' $lc_tmp_yaml
 
 # This Corrects the Host File For The Netplan with interface name
 sed -i 's|lc-host-vint|'$if_name'|g' $lc_tmp_yaml
+
+# This Corrects the Host File For The Netplan with primary network
+sed -i 's|lc-host-mac|'$lc_network_mac_address'|g' $lc_tmp_yaml
 
 # This Corrects the loopback to bind to primary IP Address
 sed -i 's|127.0.0.1|'$lc_network'|g' $lc_netdata
