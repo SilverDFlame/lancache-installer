@@ -15,9 +15,9 @@ update_apt() {
 # File path for lancache
 lc_srv_loc="/srv/lancache"
 # Primary DNS Server
-lc_dns1="192.168.1.10"
+lc_dns1="1.1.1.1"
 # Secondary DNS Server
-lc_dns2="192.168.1.10"
+lc_dns2="1.0.0.1"
 # Proxy cache size, measued in Megabytes (MB). Default is 500GB
 lc_max_size="500000m"
 # Name of interface to use for lancache
