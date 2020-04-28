@@ -38,18 +38,6 @@ if_name=$(printf ${lc_route#*dev })
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
-# Checking to see if NGINX repository is already in system.
-if [[ -f /etc/apt/sources.list.d/nginx.list ]]; then
-	echo "Nginx Repository Already Added to System..."
-	
-else
- 	echo "Adding NGINX repository to Ubuntu repository"
- 	curl -s https://nginx.org/keys/nginx_signing.key | apt-key add -
- 	echo "deb [arch=amd64] https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
- 	echo "deb-src https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
-
-fi
-
 # Update packages
 echo "Installing package updates..."
 # Commenting out Universe repo as we're running this on Debian.
@@ -65,7 +53,22 @@ apt-get -y upgrade
 
 # Install required packages
 echo "Installing required updates..."
-apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
+apt-get -y install gnupg sniproxy unbound nmon httpry netdata netplan.io
+
+# Checking to see if NGINX repository is already in system.
+if [[ -f /etc/apt/sources.list.d/nginx.list ]]; then
+	echo "Nginx Repository Already Added to System..."
+	
+else
+ 	echo "Adding NGINX repository to Ubuntu repository"
+ 	curl -s https://nginx.org/keys/nginx_signing.key | apt-key add -
+ 	echo "deb [arch=amd64] https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
+ 	echo "deb-src https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
+
+fi
+
+# Install Nginx
+apt-get -y nginx
 
 # Setup Unbound's Root Hints
 if [[ -f ${lc_unbound_root_hints} ]]; then
