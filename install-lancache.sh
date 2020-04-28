@@ -1,8 +1,8 @@
 #!/bin/bash
 # Following checks if you're running as root or not
 if [[ "$EUID" -ne 0 ]]; then
-	echo "Please run with sudo or as root."
-	exit 1
+  echo "Please run with sudo or as root."
+  exit 1
 fi
 
 # Changeable variables, leaving the defaults is fine
@@ -38,36 +38,25 @@ if_name=$(printf ${lc_route#*dev })
 lc_hostname=$(hostname)
 TIMESTAMP=$(date +%s)
 
-# Update packages
-echo "Installing package updates..."
-# Commenting out Universe repo as we're running this on Debian.
-#universeCheck=$(apt-cache policy |grep universe)
-#if [[ -z $universeCheck ]]; then
-#	echo "Adding universe repository..."
-#	apt-add-repository universe
-#else
-apt-get -y update
-#fi
-apt-get -y upgrade
-#apt -y dist-upgrade
-
 # Install required packages
-echo "Installing required updates..."
+echo "Installing required package updates..."
+update_apt
 apt-get -y install gnupg sniproxy unbound nmon httpry netdata netplan.io
 
 # Checking to see if NGINX repository is already in system.
 if [[ -f /etc/apt/sources.list.d/nginx.list ]]; then
-	echo "Nginx Repository Already Added to System..."
-	
+  echo "Nginx Repository Already Added to System..."
+
 else
- 	echo "Adding NGINX repository to Ubuntu repository"
- 	curl -s https://nginx.org/keys/nginx_signing.key | apt-key add -
- 	echo "deb [arch=amd64] https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" > /etc/apt/sources.list.d/nginx.list
- 	echo "deb-src https://nginx.org/packages/mainline/debian/ `lsb_release -cs` nginx" >> /etc/apt/sources.list.d/nginx.list
+  echo "Adding NGINX repository to Ubuntu repository"
+  curl -s https://nginx.org/keys/nginx_signing.key | apt-key add -
+  echo "deb [arch=amd64] https://nginx.org/packages/mainline/debian/ $(lsb_release -cs) nginx" >/etc/apt/sources.list.d/nginx.list
+  echo "deb-src https://nginx.org/packages/mainline/debian/ $(lsb_release -cs) nginx" >>/etc/apt/sources.list.d/nginx.list
 
 fi
 
 # Install Nginx
+update_apt
 apt-get -y nginx
 
 # Setup Unbound's Root Hints
@@ -79,7 +68,7 @@ else
   mv root.hints $lc_unbound_root_loc
 fi
 # Setup Pi-Hole for network wide ad-blocking
-if [[ --f basic-install.sh ]]; then
+if [[ -f basic-install.sh ]]; then
   echo "Pi-Hole already installed!"
 else
   echo "Installing Pi-Hole......"
@@ -98,10 +87,10 @@ declare -a lc_logfolders=(access errors keys)
 
 declare -a ip_eth=$(ip link show | grep ens | tr ":" " " | awk '{ print $2 }')
 for int in ${ip_eth[@]}; do
-	inet_eth=$(ip route get $lc_dns1 | tr " " " " | awk '{ print $5 }' )
-	if [[ "$inet_eth" == "$int" ]]; then
-		lc_ip_eth=$int
-	fi
+  inet_eth=$(ip route get $lc_dns1 | tr " " " " | awk '{ print $5 }')
+  if [[ "$inet_eth" == "$int" ]]; then
+    lc_ip_eth=$int
+  fi
 done
 
 lc_ip=$(/bin/ip -4 addr show $lc_ip_eth | grep -oP "(?<=inet ).*(?=br)")
@@ -115,18 +104,18 @@ lc_ip_p3=$(echo ${lc_ip} | tr "." " " | awk '{ print $3 }')
 # 4th octet
 lc_ip_p4=$(echo ${lc_ip} | tr "." " " | awk '{ print $4 }' | cut -f1 -d "/")
 # Subnet
-lc_ip_sn=$(echo ${lc_ip} | sed 's:.*/::' )
+lc_ip_sn=$(echo ${lc_ip} | sed 's:.*/::')
 
 ########### Update lancache config folder from github########################################
 # Checking to see if directory exists before attempting to remove and add to prevent bash errors
 if [[ -d $lc_base_folder ]]; then
-	echo "Removing old lancache install directory..."
-	rm -rfv $lc_base_folder
+  echo "Removing old lancache install directory..."
+  rm -rfv $lc_base_folder
 fi
 
 if [[ ! -d $lc_base_folder ]]; then
-	echo "Creating new lancache install directory..."
-	mkdir -p $lc_base_folder
+  echo "Creating new lancache install directory..."
+  mkdir -p $lc_base_folder
 fi
 
 cd $lc_dl_dir
@@ -134,58 +123,56 @@ git clone -b master https://github.com/SilverDFlame/lancache-installer.git
 echo "Configuring IP Addressing..."
 for service in ${lc_services[@]}; do
   echo "Configuring $service's IP as:"
-	# Check if the folder exists if not creates it
-	if [[ ! -d "/tmp/data/$service" ]]; then
-		mkdir -p /tmp/data/$service
-	fi
+  # Check if the folder exists if not creates it
+  if [[ ! -d "/tmp/data/$service" ]]; then
+    mkdir -p /tmp/data/$service
+  fi
 
-	#new stuff TTE - CARl LOOP
-	while grep -q "lc-host-${service}" "${lc_tmp_hosts}" >> /dev/null
-	do
-		# Increases the IP with Every Run
-		lc_ip_p4=$(expr $lc_ip_p4 + 1)
+  #new stuff TTE - CARl LOOP
+  while grep -q "lc-host-${service}" "${lc_tmp_hosts}" >>/dev/null; do
+    # Increases the IP with Every Run
+    lc_ip_p4=$(expr $lc_ip_p4 + 1)
     echo $lc_ip_p1.$lc_ip_p2.$lc_ip_p3.$lc_ip_p4
-		#new stuff TTE - CARl LOOP
-		sed  -i '0,/lc-host-'$service'/s//'$lc_ip_p1.$lc_ip_p2.$lc_ip_p3.$lc_ip_p4'/' "$lc_tmp_hosts"
-	done	
+    #new stuff TTE - CARl LOOP
+    sed -i '0,/lc-host-'$service'/s//'$lc_ip_p1.$lc_ip_p2.$lc_ip_p3.$lc_ip_p4'/' "$lc_tmp_hosts"
+  done
 done
-
 
 # Return each line of the file.. Seem by default it trims space/tabs
 while read line; do
 
-	# skip line if substring doesn't exist in line
-	if [[ $line != *"lancache-"* ]] ; then continue; fi
-	
-	#Repalce all tabs and spaces with a single space per line
-	cleanLine=$(echo "$line" | tr -s '[:blank:]')
-	
-	# Search and replace array
-	#Split string into array base off space
-	#array[0]=192.168.x.x
-	#array[1}=lc-lancache-steamA
-	sar=($(echo "$line" | tr ' ' '\n'))
-	
-	# If array is NOT size two then skip
-	# WARNING - Yes the # does need be there!
-	if [[ "${#sar[@]}" -ne 2 ]] ; then continue; fi
-	
-	# Replace 
-	# WARNING - When using variable need use double quote (not a single quote)
-	IPAddress=${sar[0]}
-	hostName=${sar[1]}
-	# Repalce lancache with lc-host.. So lc-lancache-steamA with lc-host-steamA
-	IP_Name=${hostName/lancache/lc-host}
-	
-	# Search all lc-host-'server' and replace the IP address
-	# WARNING - When using variable need use double quote (not a single quote)
-	# Update services with correct ip address for DNS for clients
-	sed -i "s|${IP_Name}|${IPAddress}|gI" "$lc_tmp_unbound"
-	
-	# May want to replace with Replace ONLY first matching file
-	# This Changes the yaml File with the correct IP Adresses for services
-	sed -i "s|${IP_Name}|${IPAddress}/${lc_ip_sn}|gI" "$lc_tmp_yaml"
-	
+  # skip line if substring doesn't exist in line
+  if [[ $line != *"lancache-"* ]]; then continue; fi
+
+  #Repalce all tabs and spaces with a single space per line
+  cleanLine=$(echo "$line" | tr -s '[:blank:]')
+
+  # Search and replace array
+  #Split string into array base off space
+  #array[0]=192.168.x.x
+  #array[1}=lc-lancache-steamA
+  sar=($(echo "$line" | tr ' ' '\n'))
+
+  # If array is NOT size two then skip
+  # WARNING - Yes the # does need be there!
+  if [[ "${#sar[@]}" -ne 2 ]]; then continue; fi
+
+  # Replace
+  # WARNING - When using variable need use double quote (not a single quote)
+  IPAddress=${sar[0]}
+  hostName=${sar[1]}
+  # Repalce lancache with lc-host.. So lc-lancache-steamA with lc-host-steamA
+  IP_Name=${hostName/lancache/lc-host}
+
+  # Search all lc-host-'server' and replace the IP address
+  # WARNING - When using variable need use double quote (not a single quote)
+  # Update services with correct ip address for DNS for clients
+  sed -i "s|${IP_Name}|${IPAddress}|gI" "$lc_tmp_unbound"
+
+  # May want to replace with Replace ONLY first matching file
+  # This Changes the yaml File with the correct IP Adresses for services
+  sed -i "s|${IP_Name}|${IPAddress}/${lc_ip_sn}|gI" "$lc_tmp_yaml"
+
 done <"$lc_tmp_hosts"
 
 # This Changes the Unbound File with the correct IP Adresses for lc-host-ip
@@ -210,30 +197,28 @@ sed -i "s|lc-hostname|$lc_hostname|g" $lc_tmp_hosts
 sed -i "s|lc-host-proxybind|$lc_network|g" $lc_tmp_hosts
 
 #for logfolder in ${lc_logfolders[@]}; do
-	#Check if the folder exists if not creates it
-	#if [[ ! -d "$lc_base_folder/$folder" ]]; then
-		#mkdir -p $lc_base_folder/$logfolder
-	#fi
+#Check if the folder exists if not creates it
+#if [[ ! -d "$lc_base_folder/$folder" ]]; then
+#mkdir -p $lc_base_folder/$logfolder
+#fi
 #done
 
 ### Change file limits
 # Need to get the limits into the /etc/security/limits.conf  * soft nofile  65536 * hard nofile  65536
 echo "Setting security limits..."
 mv /etc/security/limits.conf /etc/security/limits.conf.$TIMESTAMP.bak
-echo '* soft nofile  65536' >> /etc/security/limits.conf
-echo '* hard nofile  65536' >> /etc/security/limits.conf
+echo '* soft nofile  65536' >>/etc/security/limits.conf
+echo '* hard nofile  65536' >>/etc/security/limits.conf
 
 # Change Ownership of folders
 echo "Adding lancache directory structure and setting permissions..."
 mkdir $lc_srv_loc
-for i in ${lc_services[@]}
-do
-	mkdir -p ${lc_srv_loc}/data/${i}
+for i in ${lc_services[@]}; do
+  mkdir -p ${lc_srv_loc}/data/${i}
 done
 
-for i in ${lc_logfolders[@]}
-do
-	mkdir -p ${lc_srv_loc}/logs/${i}
+for i in ${lc_logfolders[@]}; do
+  mkdir -p ${lc_srv_loc}/logs/${i}
 done
 chown -R www-data:www-data $lc_srv_loc
 
@@ -281,7 +266,7 @@ echo "Configuring unbound..."
 sed -i "s|lc-unbound-root-hints|'$lc_unbound_root_hints'|g" $lc_tmp_unbound
 mv /etc/unbound/unbound.conf /etc/unbound/unbound.conf.$TIMESTAMP.bak
 cp $lc_base_folder/etc/unbound/unbound.conf /etc/unbound/unbound.conf
-#Disable Systemd.resolve so unbound can start 
+#Disable Systemd.resolve so unbound can start
 
 # Configuring startup services
 echo "Configuring services to run on boot..."
@@ -291,7 +276,7 @@ systemctl enable sniproxy
 systemctl enable unbound
 systemctl enable netdata
 
-#Fix Unbound startup service 
+#Fix Unbound startup service
 cp $lc_dl_dir/lancache-installer/etc/systemd/system/multi-user.target.wants/unbound.service /etc/systemd/system/multi-user.target.wants/unbound.service
 systemctl daemon-reload
 
@@ -327,3 +312,8 @@ echo "##########################################################################
 echo "Reboot System"
 echo "##############################################################################################"
 echo ""
+
+update_apt() {
+  apt-get -y update
+  apt-get -y upgrade
+}
