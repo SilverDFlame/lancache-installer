@@ -7,8 +7,8 @@ fi
 
 # package repo update function
 update_apt() {
-  apt-get -y update
-  apt-get -y upgrade
+  apt -y update
+  apt -y upgrade
 }
 
 # Changeable variables, leaving the defaults is fine
