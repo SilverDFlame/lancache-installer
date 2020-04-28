@@ -40,7 +40,7 @@ TIMESTAMP=$(date +%s)
 
 echo "Host IP is: ${if_name} and Host Gateway is: ${lc_gateway}"
 # Checking to see if NGINX repository is already in system.
-if [[ --f /etc/apt/sources.list.d/nginx.list ]]; then
+if [[ -f /etc/apt/sources.list.d/nginx.list ]]; then
 	echo "Nginx Repository Already Added to System..."
 	
 else
@@ -69,7 +69,7 @@ echo "Installing required updates..."
 apt-get -y install nginx sniproxy unbound nmon httpry netdata netplan.io
 
 # Setup Unbound's Root Hints
-if [[ --f ${lc_unbound_root_hints} ]]; then
+if [[ -f ${lc_unbound_root_hints} ]]; then
   echo "Already downloaded root.hints file"
 else
   echo "Setting up Unbound's root.hints file..."
@@ -116,7 +116,7 @@ lc_ip_p4=$(echo ${lc_ip} | tr "." " " | awk '{ print $4 }' | cut -f1 -d "/")
 lc_ip_sn=$(echo ${lc_ip} | sed 's:.*/::' )
 
 ########### Update lancache config folder from github########################################
-# Chcecking to see if directory exists before attempting to remove and add to prevent bash errors
+# Checking to see if directory exists before attempting to remove and add to prevent bash errors
 if [[ -d $lc_base_folder ]]; then
 	echo "Removing old lancache install directory..."
 	rm -rfv $lc_base_folder
