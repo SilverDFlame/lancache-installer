@@ -5,6 +5,12 @@ if [[ "$EUID" -ne 0 ]]; then
   exit 1
 fi
 
+# package repo update function
+update_apt() {
+  apt-get -y update
+  apt-get -y upgrade
+}
+
 # Changeable variables, leaving the defaults is fine
 # File path for lancache
 lc_srv_loc="/srv/lancache"
@@ -312,8 +318,3 @@ echo "##########################################################################
 echo "Reboot System"
 echo "##############################################################################################"
 echo ""
-
-update_apt() {
-  apt-get -y update
-  apt-get -y upgrade
-}
