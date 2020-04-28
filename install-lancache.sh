@@ -7,8 +7,8 @@ fi
 
 # package repo update function
 update_apt() {
-  apt -y update
-  apt -y upgrade
+  apt-get -y update
+  apt-get -y upgrade
 }
 
 # Changeable variables, leaving the defaults is fine
@@ -63,7 +63,7 @@ fi
 
 # Install Nginx
 update_apt
-apt-get -y nginx
+apt-get install -y nginx
 
 # Setup Unbound's Root Hints
 if [[ -f ${lc_unbound_root_hints} ]]; then
