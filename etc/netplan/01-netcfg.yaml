@@ -3,7 +3,8 @@ network:
   renderer: networkd
   ethernets:
     lc-host-vint:
-      match: lc-host-mac
+      match:
+        macaddress: lc-host-mac
       dhcp4: no
       dhcp6: no
       addresses: [lc-host-network]
