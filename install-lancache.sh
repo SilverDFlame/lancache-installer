@@ -48,7 +48,7 @@ TIMESTAMP=$(date +%s)
 # Install required packages
 echo "Installing required package updates..."
 update_apt
-apt-get -y install gnupg sniproxy unbound nmon httpry netdata netplan.io
+apt-get -y install gnupg sniproxy unbound nmon httpry netdata netplan.io php7.3-fpm apache2-utils
 
 # Checking to see if NGINX repository is already in system.
 if [[ -f /etc/apt/sources.list.d/nginx.list ]]; then
@@ -279,12 +279,18 @@ cp $lc_base_folder/etc/unbound/unbound.conf /etc/unbound/unbound.conf
 #Disable Systemd.resolve so unbound can start
 
 # Configuring startup services
-echo "Configuring services to run on boot..."
+echo "Configuring services to run on boot and set nginx user..."
 systemctl enable nginx
 systemctl enable nginx.service
 systemctl enable sniproxy
 systemctl enable unbound
 systemctl enable netdata
+systemctl enable php7.3-fpm
+
+htpasswd -c /etc/nginx/.htpasswd olieran
+
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
 
 #Fix Unbound startup service
 cp $lc_dl_dir/lancache-installer/etc/systemd/system/multi-user.target.wants/unbound.service /etc/systemd/system/multi-user.target.wants/unbound.service
